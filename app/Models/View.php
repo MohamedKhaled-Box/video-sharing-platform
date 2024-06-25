@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class View extends Model
 {
     use HasFactory;
+    protected $guarded = [];
     public function video(): BelongsTo
     {
         return $this->belongsTo(video::class);
