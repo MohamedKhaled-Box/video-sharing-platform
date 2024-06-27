@@ -63,10 +63,11 @@ return [
             'secret' => env('TEBI_SECRET_ACCESS_KEY'),
             'region' => env('TEBI_DEFAULT_REGION', 'us-east-1'), // replace with your Tebi region
             'bucket' => env('TEBI_BUCKET'),
-            // 'url' => env('TEBI_URL'), // replace with your Tebi URL if needed
+            'url' => env('TEBI_URL'), // replace with your Tebi URL if needed
             'endpoint' => env('TEBI_ENDPOINT', 'https://s3.tebi.io'), // replace with Tebi endpoint
             'use_path_style_endpoint' => true,
             'visibility' => 'public',
+            'throw' => false,
 
         ],
 

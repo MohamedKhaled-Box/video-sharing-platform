@@ -87,4 +87,17 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Video::class, 'video_user', 'user_id', 'video_id')->withTimestamps()->withPivot('id');
     }
+
+    public function isAdmin()
+    {
+        return $this->administration_level > 0 ? true : false;
+    }
+    public function isSuperAdmin()
+    {
+        return $this->administration_level > 1 ? true : false;
+    }
+    public function views()
+    {
+        return $this->hasMany(View::class);
+    }
 }

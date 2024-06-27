@@ -42,7 +42,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item  {{ request()->is('/') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('dashboard') }}">
+                        <a class="nav-link" href="{{ route('main') }}">
                             <i class="fas fa-home"></i>
                             الصفحة الرئيسية
                         </a>
@@ -50,7 +50,7 @@
 
                     @auth
                         <li class="nav-item {{ request()->is('history') ? 'active' : '' }}">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="{{ route('history') }}">
                                 <i class="fas fa-history"></i>
                                 سجل المشاهدة
                             </a>
@@ -72,7 +72,7 @@
                     @endauth
 
                     <li class="nav-item {{ request()->is('channel*') ? 'active' : '' }}">
-                        <a class="nav-link" href="#}">
+                        <a class="nav-link" href="{{ route('channel.index') }}">
                             <i class="fas fa-film"></i>
                             القنوات
                         </a>
@@ -103,11 +103,11 @@
                     </div>
                     @guest
                         <li class="nav-item mt-2">
-                            <a class="nav-link" href="#">{{ __('تسجيل الدخول') }}</a>
+                            <a class="nav-link" href="{{ route('login') }}">{{ __('تسجيل الدخول') }}</a>
                         </li>
                         @if (Route::has('register'))
                             <li class="nav-item mt-2">
-                                <a class="nav-link" href="#">{{ __('إنشاء حساب') }}</a>
+                                <a class="nav-link" href="{{ route('register') }}">{{ __('إنشاء حساب') }}</a>
                             </li>
                         @endif
                     @else
@@ -118,7 +118,7 @@
                             </a>
                             <div class="dropdown-menu dropdown-menu-left px-2 text-right mt-2">
                                 @can('update-videos')
-                                    <a href="#" class="dropdown-item text-right">لوحة الإدارة</a>
+                                    <a href="{{ route('admin.index') }}" class="dropdown-item text-right">لوحة الإدارة</a>
                                 @endcan
                                 <div class="pt-4 pb-1 border-t border-gray-200">
                                     <div class="flex items-center px-4">

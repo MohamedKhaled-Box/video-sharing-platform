@@ -14,4 +14,8 @@ class View extends Model
     {
         return $this->belongsTo(video::class);
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
