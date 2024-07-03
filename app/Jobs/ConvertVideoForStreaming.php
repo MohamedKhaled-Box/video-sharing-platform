@@ -2,7 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Events\FailedNotification;
+use App\Events\RealNotification;
+use App\Models\Alert;
 use App\Models\Convertedvideo;
+use App\Models\Notification;
 use FFMpeg\Coordinate\Dimension;
 use FFMpeg\Format\Video\X264;
 use Illuminate\Bus\Queueable;
@@ -154,6 +158,20 @@ class ConvertVideoForStreaming implements ShouldQueue
         }
         $converted_video->video_id = $this->video->id;
         $converted_video->save();
+
+        $data = [
+            'video_title' => $this->video->title
+        ];
+        $notification = new Notification();
+        $notification->user_id = $this->video->user_id;
+        $notification->notification = $this->video->title;
+        $notification->save();
+
+        event(new RealNotification($data));
+        $alert = Alert::where('user_id', '=', $this->video->user_id)->first();
+        $alert->alert++;
+        $alert->save();
+
         $this->video->update([
             'processed' => true,
             'hours' => $hours,
@@ -161,5 +179,20 @@ class ConvertVideoForStreaming implements ShouldQueue
             'seconds' => $seconds,
             'quality' => $quality,
         ]);
+    }
+    public function failed()
+    {
+        $notification = new Notification();
+        $notification->user_id = $this->video->user_id;
+        $notification->notification = $this->video->title;
+        $notification->success = false;
+        $notification->save();
+        $data = [
+            'video_title' => $this->video->title,
+        ];
+        event(new FailedNotification($data));
+        $alert = Alert::where('user_id', '=', $this->video->user_id)->first();
+        $alert->alert++;
+        $alert->save();
     }
 }

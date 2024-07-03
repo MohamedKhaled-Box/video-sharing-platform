@@ -15,6 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
         integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous">
     </script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"
         integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous">
     </script>
@@ -27,7 +28,19 @@
     @livewireStyles
 
     <link href="{!! asset('theme/css/sb-admin-2.css') !!}" rel="stylesheet">
+    <script>
+        // Enable pusher logging - don't include this in production
+        Pusher.logToConsole = true;
 
+        var pusher = new Pusher('a0d6cc95560992d9f759', {
+            cluster: 'eu'
+        });
+
+        var channel = pusher.subscribe('my-channel');
+        channel.bind('my-event', function(data) {
+            alert(JSON.stringify(data));
+        });
+    </script>
 </head>
 
 <body dir="rtl" style="text-align: right">
@@ -88,16 +101,19 @@
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fas fa-bell fa-fw fa-lg"></i>
                                     <!-- Counter - Alerts -->
-                                    <span class="badge badge-danger badge-counter notif-count" {{-- data-count="{{ App\Models\Alert::where('user_id', Auth::user()->id)->first()->alert }}">{{ App\Models\Alert::where('user_id', Auth::user()->id)->first()->alert }}</span> --}} </a>
-                                        <!-- Dropdown - Alerts -->
-                                        <div class="dropdown-list dropdown-menu dropdown-menu-right text-right mt-2"
-                                            aria-labelledby="alertsDropdown">
-                                            <div class="alert-body">
+                                    <span class="badge badge-danger badge-counter notif-count"
+                                        data-count="{{ App\Models\Alert::where('user_id', Auth::user()->id)->first()->alert }}">{{ App\Models\Alert::where('user_id', Auth::user()->id)->first()->alert }}</span>
+                                </a>
+                                <!-- Dropdown - Alerts -->
+                                <div class="dropdown-list dropdown-menu dropdown-menu-right text-right mt-2"
+                                    aria-labelledby="alertsDropdown">
+                                    <div class="alert-body">
 
-                                            </div>
-                                            <a class="dropdown-item text-center small text-gray-500" href="#">عرض جميع
-                                                الإشعارات</a>
-                                        </div>
+                                    </div>
+                                    <a class="dropdown-item text-center small text-gray-500"
+                                        href="{{ route('all.notification') }}">عرض جميع
+                                        الإشعارات</a>
+                                </div>
                             </li>
                         @endauth
                     </div>
@@ -213,18 +229,85 @@
         </main>
     </div>
     <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
-    <script>
-        // Enable pusher logging - don't include this in production
-        Pusher.logToConsole = true;
 
-        var pusher = new Pusher('0d7c055c9f991cc11d83', {
-            cluster: 'mt1'
-        });
-    </script>
     <script src="{{ asset('js/pushNotifications.js') }}"></script>
     <script src="{{ asset('js/failedNotifications.js') }}"></script>
 
+    <script>
+        var token = '{{ Session::token() }}';
+        // console.log('asd');
+        var urlNotify = '{{ route('notification') }}';
+        $('#alertsDropdown').on('click', function(event) {
+            event.preventDefault();
 
+            var notificationsWrapper = $('.alert-dropdown');
+            var notificationsToggle = notificationsWrapper.find("a[data-toggle]");
+            var notificationsCountElem = notificationsToggle.find("span[data-count]");
+
+            notificationsCount = 0;
+            notificationsCountElem.attr("data-count", notificationsCount);
+            notificationsWrapper.find(".notif-count").text(notificationsCount);
+            notificationsWrapper.show();
+
+            $.ajax({
+                method: 'POST',
+                url: urlNotify,
+                data: {
+                    _token: token
+                },
+                success: function(data) {
+                    var resposeNotifications = "";
+                    $.each(data.someNotifications, function(i, item) {
+                        var responseDate = new Date(item.created_at);
+                        var date = responseDate.getFullYear() + '-' + (responseDate.getMonth() +
+                            1) + '-' + responseDate.getDate();
+                        var time = responseDate.getHours() + ":" + responseDate.getMinutes() +
+                            ":" + responseDate.getSeconds();
+                        if (item.success) {
+                            resposeNotifications +=
+                                '<a class="dropdown-item d-flex align-items-center" href="#">\
+                                                                                                                                                                                <div class="ml-3">\
+                                                                                                                                                                                    <div class="icon-circle bg-secondary">\
+                                                                                                                                                                                        <i class="far fa-bell text-white"></i>\
+                                                                                                                                                                                    </div>\
+                                                                                                                                                                                    </div>\
+                                                                                                                                                                                    <div>\
+                                                                                                                                                                                        <div class="small text-gray-500">' +
+                                date +
+                                ' الساعة ' +
+                                time +
+                                '</div>\
+                                                                                                                                                                                    <span>تهانينا لقد تم معالجة مقطع الفيديو <b>' +
+                                item
+                                .notification + '</b> بنجاح</span>\
+                                                                                                                    </div>\
+                                                                                                                    </a>';
+                        } else {
+                            resposeNotifications +=
+                                '<a class="dropdown-item d-flex align-items-center" href="#">\
+                                                                                                                                                                                <div class="ml-3">\
+                                                                                                                                                                                    <div class="icon-circle bg-secondary">\
+                                                                                                                                                                                        <i class="far fa-bell text-white"></i>\
+                                                                                                                                                                                    </div>\
+                                                                                                                                                                                </div>\
+                                                                                                                                                                                <div>\
+                                                                                                                                                                                    <div class="small text-gray-500">' +
+                                date +
+                                ' الساعة ' +
+                                time +
+                                '</div>\
+                                                                                                                                                                                    <span>للأسف حدث خطأ غير متوقع أثناء معالجة مقطع الفيديو <b>' +
+                                item.notification +
+                                '</b> يرجى رفعه مرة أخرى</span>\
+                                                                                                                                                                                </div>\
+                                                                                                                                                                            </a>';
+                        }
+                        $('.alert-body').html(resposeNotifications);
+                    });
+                }
+            });
+        });
+    </script>
     @yield('script')
 </body>
 

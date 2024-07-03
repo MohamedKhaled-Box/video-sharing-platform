@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Alert extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['user_id'];
     public function user(): BelongsTo
     {
         return $this->belongsTo(user::class);
